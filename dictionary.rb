@@ -15,6 +15,8 @@ class Dictionary
 
   def clean
     @handle.each { |word| word.gsub!(/\r\n/, "") }
-    @handle.delete_if { |word| !word.length.between?(5, 12) }
+    @handle.delete_if do |word|
+      !word.length.between?(5, 12) || /\A[A-Z]/.match(word)
+    end
   end
 end
