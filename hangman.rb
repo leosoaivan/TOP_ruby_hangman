@@ -4,10 +4,11 @@ class Game
   def initialize
     @word_set = Dictionary.clean('5desk.txt')
     @word = @word_set.sample.split("")
-    @lines = Array.new(@word.length, "_ ")
+    @blanks = Array.new(@word.length, "_ ")
     @user_guess = ""
     @letter_index = []
-    @wrong_guesses = []
+    @wrong_ary = []
+    @game_won = false
     @@guesses = 6
     game_start
   end
@@ -18,9 +19,10 @@ class Game
     begin
       system "clear"
       start_message
-      puts "#{@word}"
       game_loop
-    end until @@guesses == 0
+    end until game_lost || game_won
+    ending_msg
+    restart
   end
 
   def start_message
@@ -35,23 +37,23 @@ class Game
   end
 
   def game_loop
-    print_lines
-    print_wrong
+    update_lines
+    blank_lines
+    wrong_guesses
     remaining_guesses
     prompt_guess
     evaluate_input
-    puts @lines
   end
 
-  def print_lines
+  def blank_lines
     print "Your word:  "
-    puts "#{@lines.join}"
+    puts "#{@blanks.join}"
     puts ""
   end
 
-  def print_wrong
+  def wrong_guesses
     print "Your wrong guesses: "
-    puts @wrong_guesses.sort.join(" ")
+    puts @wrong_ary.sort.join(" ")
     puts ""
   end
 
@@ -60,8 +62,10 @@ class Game
   end
 
   def prompt_guess
-    print "Your guess: "
-    @user_guess = gets.chomp.downcase
+    begin
+      print "Your guess: "
+      @user_guess = gets.chomp.downcase[0]
+    end until /[a-z]/.match(@user_guess)
   end
 
   def evaluate_input
@@ -70,13 +74,47 @@ class Game
 
   def index_matches
     @word.each_with_index { |el, ind| @letter_index << ind if el == @user_guess }
-    @letter_index.each { |num| @lines[num] = "#{@user_guess.upcase} "}
+  end
+
+  def update_lines
+    @letter_index.each { |num| @blanks[num] = "#{@user_guess.upcase} "}
     @letter_index.clear
   end
 
   def tally_wrong
-    @wrong_guesses << @user_guess.upcase
+    @wrong_ary << @user_guess.upcase
     @@guesses -= 1
+  end
+
+  def game_lost
+    @@guesses == 0
+  end
+
+  def game_won
+    @game_won = true if !@blanks.include?("_ ")
+  end
+
+  def ending_msg
+    if game_lost
+      puts "You lost the game!"
+      puts "The secret word was #{@word.join.upcase}."
+    else
+      puts "You won the game!"
+    end
+    puts ""
+  end
+
+  def restart
+    print "Would you like to play again? Y/N? "
+    input = gets.chomp.upcase
+    if input == "Y"
+      x = Game.new
+    elsif input == "N"
+      puts "Goodbye!"
+    else
+      puts "I didn't get that."
+      restart
+    end
   end
 
 
