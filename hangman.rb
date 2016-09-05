@@ -16,11 +16,7 @@ class Game
   private
 
   def game_start
-    begin
-      system "clear"
-      start_message
-      game_loop
-    end until game_lost || game_won
+    game_loop
     ending_msg
     restart
   end
@@ -33,19 +29,29 @@ class Game
     puts "* game, written in Ruby! Try to guess the secret word, but beware!  *"
     puts "*                 You only have 6 wrong guesses!                    *"
     puts "*********************************************************************"
-    puts ""
   end
 
   def game_loop
-    update_lines
-    blank_lines
-    wrong_guesses
-    remaining_guesses
-    prompt_guess
-    evaluate_input
+    begin
+      system "clear"
+      start_message
+      update_lines
+      blank_lines
+      remaining_guesses
+      wrong_guesses
+      break if !@blanks.include?("_ ")
+      prompt_guess
+      evaluate_input
+    end until @@guesses == 0
+  end
+
+  def update_lines
+    @letter_index.each { |num| @blanks[num] = "#{@user_guess.upcase} "}
+    @letter_index.clear
   end
 
   def blank_lines
+    puts ""
     print "Your word:  "
     puts "#{@blanks.join}"
     puts ""
@@ -58,7 +64,7 @@ class Game
   end
 
   def remaining_guesses
-    puts "You have #{@@guesses} guess(es) left."
+    puts "You have #{@@guesses} wrong guess(es) left."
   end
 
   def prompt_guess
@@ -76,26 +82,13 @@ class Game
     @word.each_with_index { |el, ind| @letter_index << ind if el == @user_guess }
   end
 
-  def update_lines
-    @letter_index.each { |num| @blanks[num] = "#{@user_guess.upcase} "}
-    @letter_index.clear
-  end
-
   def tally_wrong
     @wrong_ary << @user_guess.upcase
     @@guesses -= 1
   end
 
-  def game_lost
-    @@guesses == 0
-  end
-
-  def game_won
-    @game_won = true if !@blanks.include?("_ ")
-  end
-
   def ending_msg
-    if game_lost
+    if @@guesses == 0
       puts "You lost the game!"
       puts "The secret word was #{@word.join.upcase}."
     else
@@ -116,8 +109,6 @@ class Game
       restart
     end
   end
-
-
 
 end
 
