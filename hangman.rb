@@ -2,6 +2,7 @@ require './dictionary.rb'
 
 class Game
   def initialize
+    @word_set = Dictionary.clean('5desk.txt')
     game_start
   end
 
@@ -10,17 +11,24 @@ class Game
   def game_start
     system "clear"
     start_message
+    random_word
   end
 
   def start_message
     puts "*********************************************************************"
-    puts "                            HANGMAN                                  "
-    puts ""
-    puts "                      Welcome to Hangman!"
-    puts "   Try to guess the computer's secret 4-character code using the"
-    puts " letters A through F. Duplicate letters ARE allowed. Otherwise, make"
-    puts "       your own code and see if the computer can guess it."
-    puts ""
-    puts "                    (It most likely will!)"
+    puts "*                            HANGMAN                                *"
+    puts "*                                                                   *"
+    puts "*      Welcome to a command line implementation of the classic      *"
+    puts "* game, written in Ruby! Try to guess the secret word, but beware!  *"
+    puts "*                   You only have 6 guesses!                        *"
     puts "*********************************************************************"
+    puts ""
   end
+
+  def random_word
+    puts @word_set.sample
+  end
+
+end
+
+x = Game.new
