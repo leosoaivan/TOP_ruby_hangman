@@ -3,6 +3,9 @@ require './dictionary.rb'
 class Game
   def initialize
     @word_set = Dictionary.clean('5desk.txt')
+    @word = @word_set.sample
+    @lines = Array.new(@word.length, "_ ")
+    @@turns = 6
     game_start
   end
 
@@ -11,7 +14,7 @@ class Game
   def game_start
     system "clear"
     start_message
-    random_word
+    print_lines
   end
 
   def start_message
@@ -25,8 +28,8 @@ class Game
     puts ""
   end
 
-  def random_word
-    puts @word_set.sample
+  def print_lines
+    puts @lines.join
   end
 
 end
