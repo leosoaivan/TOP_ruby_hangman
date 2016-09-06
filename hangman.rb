@@ -43,7 +43,6 @@ class Game
       break if !@blanks.include?("_ ")
       prompt_guess
       evaluate_guess
-      evaluate_input
     end until @@guesses == 0
   end
 
@@ -74,14 +73,17 @@ class Game
   def evaluate_guess
     if @user_guess == "SAVE"
       save_function
+      print "Your file has been saved!"
     elsif @user_guess == "LOAD"
       load_function
     else
       @user_guess = @user_guess[0]
+      evaluate_input
     end
   end
 
   def evaluate_input
+    @user_guess == ("SAVE" || "LOAD")
     @word.include?(@user_guess) ? index_matches : tally_wrong
   end
 
@@ -99,6 +101,16 @@ class Game
     @letter_index.clear
   end
 
+  def save_function
+    Dir.mkdir("save") unless Dir.exists?("save")
+
+    filename = "save/saved_game.json"
+
+    File.open(filename,'w') do |file|
+      file.puts JSON.dump([@word, @blanks, @wrong_ary, @game_won, @@guesses])
+    end
+  end
+
   def ending_msg
     if @@guesses == 0
       puts "You lost the game!"
@@ -112,6 +124,7 @@ class Game
   def restart
     print "Would you like to play again? Y/N? "
     input = gets.chomp.upcase
+
     if input == "Y"
       x = Game.new
     elsif input == "N"
