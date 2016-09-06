@@ -1,9 +1,10 @@
 require './dictionary.rb'
+require 'json'
 
 class Game
   def initialize
     @word_set = Dictionary.clean('5desk.txt')
-    @word = @word_set.sample.split("")
+    @word = @word_set.sample.upcase.split("")
     @blanks = Array.new(@word.length, "_ ")
     @user_guess = ""
     @letter_index = []
@@ -35,19 +36,15 @@ class Game
     begin
       system "clear"
       start_message
-      update_lines
+      update_blanks
       blank_lines
       remaining_guesses
       wrong_guesses
       break if !@blanks.include?("_ ")
       prompt_guess
+      evaluate_guess
       evaluate_input
     end until @@guesses == 0
-  end
-
-  def update_lines
-    @letter_index.each { |num| @blanks[num] = "#{@user_guess.upcase} "}
-    @letter_index.clear
   end
 
   def blank_lines
@@ -70,8 +67,18 @@ class Game
   def prompt_guess
     begin
       print "Your guess: "
-      @user_guess = gets.chomp.downcase[0]
-    end until /[a-z]/.match(@user_guess)
+      @user_guess = gets.chomp.upcase
+    end until /[A-Z]/.match(@user_guess)
+  end
+
+  def evaluate_guess
+    if @user_guess == "SAVE"
+      save_function
+    elsif @user_guess == "LOAD"
+      load_function
+    else
+      @user_guess = @user_guess[0]
+    end
   end
 
   def evaluate_input
@@ -83,8 +90,13 @@ class Game
   end
 
   def tally_wrong
-    @wrong_ary << @user_guess.upcase
+    @wrong_ary << @user_guess
     @@guesses -= 1
+  end
+
+  def update_blanks
+    @letter_index.each { |num| @blanks[num] = "#{@user_guess} "}
+    @letter_index.clear
   end
 
   def ending_msg
