@@ -1,5 +1,6 @@
 require './dictionary.rb'
 require 'json'
+require 'pry'
 
 class Game
   def initialize
@@ -72,8 +73,9 @@ class Game
 
   def evaluate_guess
     if @user_guess == "SAVE"
+      puts "Your file has been saved!"
+      sleep(2)
       save_function
-      print "Your file has been saved!"
     elsif @user_guess == "LOAD"
       load_function
     else
@@ -83,7 +85,6 @@ class Game
   end
 
   def evaluate_input
-    @user_guess == ("SAVE" || "LOAD")
     @word.include?(@user_guess) ? index_matches : tally_wrong
   end
 
@@ -107,8 +108,38 @@ class Game
     filename = "save/saved_game.json"
 
     File.open(filename,'w') do |file|
-      file.puts JSON.dump([@word, @blanks, @wrong_ary, @game_won, @@guesses])
+      file.puts to_json
     end
+  end
+
+  def to_json
+    JSON.dump({
+      "word" => @word,
+      "blanks" => @blanks,
+      "wrong_ary" => @wrong_ary,
+      "game_won" => @game_won,
+      "guesses" => @@guesses
+    })
+  end
+
+  def load_function
+    if File.exists?("save/saved_game.json")
+      loaded = JSON.load File.new("save/saved_game.json")
+      from_json(loaded)
+      puts "Your file has been loaded."
+      sleep(1.5)
+    else
+      puts "There is no save file!"
+      sleep(1.5)
+    end
+  end
+
+  def from_json(json)
+    @word = json["word"]
+    @blanks = json["blanks"]
+    @wrong_ary = json["wrong_ary"]
+    @game_won = json["game_won"]
+    @@guesses = json["guesses"]
   end
 
   def ending_msg
