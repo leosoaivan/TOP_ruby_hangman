@@ -1,6 +1,5 @@
 require './dictionary.rb'
 require 'json'
-require 'pry'
 
 class Game
   def initialize
@@ -12,12 +11,12 @@ class Game
     @wrong_ary = []
     @game_won = false
     @@guesses = 6
-    game_start
+    game_execute
   end
 
   private
 
-  def game_start
+  def game_execute
     game_loop
     ending_msg
     restart
@@ -28,8 +27,11 @@ class Game
     puts "*                            HANGMAN                                *"
     puts "*                                                                   *"
     puts "*      Welcome to a command line implementation of the classic      *"
-    puts "* game, written in Ruby! Try to guess the secret word, but beware!  *"
+    puts "* game, written in Ruby! Try to guess the secret word, but beware:  *"
     puts "*                 You only have 6 wrong guesses!                    *"
+    puts "*                                                                   *"
+    puts "*   You can save and load at anytime. Just type 'save' or 'load'    *"
+    puts "*        (without quotes). To quit, type 'quit' at any time!        *"
     puts "*********************************************************************"
   end
 
@@ -74,10 +76,12 @@ class Game
   def evaluate_guess
     if @user_guess == "SAVE"
       puts "Your file has been saved!"
-      sleep(2)
+      sleep(1.5)
       save_function
     elsif @user_guess == "LOAD"
       load_function
+    elsif @user_guess == "QUIT"
+      abort("Goodbye. Thanks for playing!")
     else
       @user_guess = @user_guess[0]
       evaluate_input
@@ -126,7 +130,7 @@ class Game
     if File.exists?("save/saved_game.json")
       loaded = JSON.load File.new("save/saved_game.json")
       from_json(loaded)
-      puts "Your file has been loaded."
+      puts "Your file is being loaded."
       sleep(1.5)
     else
       puts "There is no save file!"
